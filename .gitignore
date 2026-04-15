@@ -1,0 +1,22 @@
+# Environment files
+**/.env
+**/*.env
+!**/.env.example
+
+# Dependencies
+**/node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Misc local files
+Backend/routes/jsssjdf.env

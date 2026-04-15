@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Trailers</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #0a0a0f;
+            --secondary-dark: #1a1a2e;
+            --accent-purple: #8a2be2;
+            --neon-purple: #9d4edd;
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --text-light: #f0f0f0;
+            --text-muted: #b0b0c0;
+            --card-bg: rgba(26, 26, 46, 0.9);
+            --input-bg: rgba(40, 40, 60, 0.8);
+            --border-glow: rgba(157, 78, 221, 0.3);
+            --success-neon: #00ff00;
+            --warning-neon: #ffff00;
+            --danger-neon: #ff3333;
+        }
+        
+        * {
+            transition: all 0.3s ease;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Efectos de neón */
+        .neon-border {
+            border: 2px solid var(--neon-purple);
+            box-shadow: 0 0 10px var(--neon-purple),
+                        0 0 20px var(--neon-purple),
+                        inset 0 0 10px var(--neon-purple);
+        }
+        
+        .neon-text {
+            text-shadow: 0 0 5px var(--neon-cyan),
+                         0 0 10px var(--neon-cyan),
+                         0 0 15px var(--neon-cyan);
+        }
+        
+        .neon-text-purple {
+            color: var(--neon-purple);
+            text-shadow: 0 0 5px var(--neon-purple),
+                         0 0 10px var(--neon-purple),
+                         0 0 20px var(--neon-pink);
+        }
+        
+        /* Login Section */
+        .login-container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, 
+                      rgba(26, 26, 46, 0.9) 0%,
+                      rgba(10, 10, 15, 0.95) 100%),
+                      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="none"/><path d="M0,50 Q25,40 50,50 T100,50" stroke="rgba(157, 78, 221, 0.1)" fill="none"/></svg>');
+        }
+        
+        .login-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            border: 2px solid var(--neon-purple);
+            box-shadow: 0 0 30px rgba(157, 78, 221, 0.4),
+                        0 0 60px rgba(157, 78, 221, 0.2),
+                        inset 0 0 20px rgba(157, 78, 221, 0.1);
+            backdrop-filter: blur(10px);
+            animation: pulse 4s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 30px rgba(157, 78, 221, 0.4),
+                            0 0 60px rgba(157, 78, 221, 0.2);
+            }
+            100% {
+                box-shadow: 0 0 40px rgba(157, 78, 221, 0.6),
+                            0 0 80px rgba(157, 78, 221, 0.3);
+            }
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, 
+                      rgba(138, 43, 226, 0.2), 
+                      rgba(157, 78, 221, 0.3));
+            border-bottom: 2px solid var(--neon-purple);
+            padding: 25px;
+            text-align: center;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .login-header h2 {
+            color: var(--neon-purple);
+            text-shadow: 0 0 10px var(--neon-purple),
+                         0 0 20px var(--neon-purple);
+        }
+        
+        .login-body {
+            padding: 30px;
+        }
+        
+        /* Form Controls */
+        .form-control, .form-select {
+            background: var(--input-bg);
+            border: 1px solid rgba(157, 78, 221, 0.5);
+            color: var(--text-light);
+            border-radius: 8px;
+            padding: 12px 15px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background: rgba(50, 50, 70, 0.9);
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.5);
+            color: var(--text-light);
+        }
+        
+        .form-label {
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-purple), var(--accent-purple));
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(157, 78, 221, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+            box-shadow: 0 8px 20px rgba(157, 78, 221, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-secondary {
+            background: rgba(60, 60, 80, 0.8);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            color: var(--text-light);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(80, 80, 100, 0.9);
+            border-color: var(--neon-purple);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff3366, #cc0066);
+            border: none;
+            box-shadow: 0 5px 15px rgba(255, 51, 102, 0.4);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffcc00, #ff9900);
+            border: none;
+            color: #000;
+            box-shadow: 0 5px 15px rgba(255, 204, 0, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #00cc66, #00994d);
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 204, 102, 0.4);
+        }
+        
+        /* Main App */
+        .main-container {
+            display: none;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(180deg, 
+                      rgba(10, 10, 15, 0.95) 0%,
+                      rgba(26, 26, 46, 0.9) 100%);
+            color: var(--text-light);
+            height: 100vh;
+            position: fixed;
+            padding-top: 20px;
+            width: 250px;
+            border-right: 2px solid var(--neon-purple);
+            box-shadow: 5px 0 20px rgba(157, 78, 221, 0.2);
+            z-index: 1000;
+        }
+        
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                      transparent, 
+                      var(--neon-purple), 
+                      transparent);
+        }
+        
+        .sidebar .brand {
+            text-align: center;
+            padding: 20px 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+        }
+        
+        .sidebar .brand h3 {
+            color: var(--neon-purple);
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px var(--neon-purple);
+        }
+        
+        .sidebar .nav-link {
+            color: var(--text-muted);
+            padding: 12px 20px;
+            margin: 5px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar .nav-link:hover {
+            color: var(--neon-cyan);
+            background: rgba(157, 78, 221, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link.active {
+            color: var(--neon-purple);
+            background: rgba(157, 78, 221, 0.15);
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.3);
+            border-left: 3px solid var(--neon-purple);
+        }
+        
+        .sidebar .nav-link i {
+            width: 25px;
+            text-align: center;
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+        
+        /* Content Area */
+        .content {
+            margin-left: 250px;
+            padding: 25px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, 
+                      rgba(10, 10, 15, 0.97) 0%,
+                      rgba(26, 26, 46, 0.95) 100%);
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-purple);
+            box-shadow: 0 10px 30px rgba(157, 78, 221, 0.3);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, 
+                      rgba(138, 43, 226, 0.2), 
+                      rgba(157, 78, 221, 0.1));
+            border-bottom: 1px solid rgba(157, 78, 221, 0.3);
+            color: var(--neon-purple);
+            padding: 15px 20px;
+            border-radius: 12px 12px 0 0 !important;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        /* Stats Cards */
+        .stats-card {
+            text-align: center;
+            padding: 25px 15px;
+            background: rgba(30, 30, 50, 0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(157, 78, 221, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            background: rgba(40, 40, 60, 0.8);
+            border-color: var(--neon-purple);
+            transform: translateY(-3px);
+        }
+        
+        .stats-card i {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            color: var(--neon-purple);
+            text-shadow: 0 0 10px var(--neon-purple);
+        }
+        
+        .stats-card h3 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+        
+        .stats-card p {
+            color: var(--text-muted);
+            margin-bottom: 0;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Tables */
+        .table {
+            color: var(--text-light);
+            border-color: rgba(157, 78, 221, 0.2);
+        }
+        
+        .table th {
+            background: rgba(138, 43, 226, 0.2);
+            color: var(--neon-purple);
+            border-color: rgba(157, 78, 221, 0.3);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            padding: 15px;
+        }
+        
+        .table td {
+            border-color: rgba(157, 78, 221, 0.1);
+            padding: 12px 15px;
+            vertical-align: middle;
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(157, 78, 221, 0.05);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(157, 78, 221, 0.1);
+            transform: scale(1.01);
+        }
+        
+        /* Form Sections */
+        .form-section {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            margin-bottom: 25px;
+        }
+        
+        /* Action Buttons */
+        .action-buttons .btn {
+            margin-right: 5px;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 0.85rem;
+            min-width: 36px;
+        }
+        
+        /* Status Colors */
+        .text-success {
+            color: var(--success-neon) !important;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+        }
+        
+        .text-warning {
+            color: var(--warning-neon) !important;
+            text-shadow: 0 0 5px rgba(255, 255, 0, 0.3);
+        }
+        
+        .text-danger {
+            color: var(--danger-neon) !important;
+            text-shadow: 0 0 5px rgba(255, 51, 51, 0.3);
+        }
+        
+        .text-primary {
+            color: var(--neon-cyan) !important;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+        }
+        
+        /* Dashboard Date */
+        #currentDateTime {
+            color: var(--neon-cyan);
+            font-weight: 500;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+            background: rgba(0, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-dark);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--neon-purple), var(--neon-pink));
+            border-radius: 5px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(var(--neon-pink), var(--neon-purple));
+        }
+        
+        /* Animation for elements */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .content-section {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 2px solid var(--neon-purple);
+            }
+            
+            .content {
+                margin-left: 0;
+            }
+            
+            .stats-card {
+                margin-bottom: 15px;
+            }
+        }
+        
+        /* Loading animation */
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(157, 78, 221, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--neon-purple);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Modal backdrop */
+        .modal-backdrop {
+            background: rgba(10, 10, 15, 0.8);
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            border: 2px solid var(--neon-purple);
+            color: var(--text-light);
+        }
+        
+        /* Badges */
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background: rgba(0, 255, 0, 0.2);
+            color: var(--success-neon);
+            border: 1px solid var(--success-neon);
+        }
+        
+        .badge-warning {
+            background: rgba(255, 255, 0, 0.2);
+            color: var(--warning-neon);
+            border: 1px solid var(--warning-neon);
+        }
+        
+        .badge-danger {
+            background: rgba(255, 51, 51, 0.2);
+            color: var(--danger-neon);
+            border: 1px solid var(--danger-neon);
+        }
+        
+        /* Tooltips */
+        .tooltip-inner {
+            background: var(--secondary-dark);
+            color: var(--neon-purple);
+            border: 1px solid var(--neon-purple);
+            box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
+        }
+        
+        .tooltip.bs-tooltip-top .tooltip-arrow::before {
+            border-top-color: var(--neon-purple);
+        }
+        
+        /* Alert Messages */
+        .alert {
+            background: rgba(30, 30, 50, 0.9);
+            border: 1px solid;
+            border-radius: 8px;
+            color: var(--text-light);
+        }
+        
+        .alert-success {
+            border-color: var(--success-neon);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+        }
+        
+        .alert-warning {
+            border-color: var(--warning-neon);
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.2);
+        }
+        
+        .alert-danger {
+            border-color: var(--danger-neon);
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.2);
+        }
+        
+        /* Chart containers */
+        canvas {
+            border-radius: 8px;
+            background: rgba(20, 20, 40, 0.5);
+            padding: 10px;
+            border: 1px solid rgba(157, 78, 221, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Section -->
+    <div id="loginSection" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h2><i class="fas fa-truck-moving me-2"></i>Sistema de Trailers</h2>
+                <p class="mb-0">Inicie sesión para continuar</p>
+            </div>
+            <div class="login-body">
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Usuario</label>
+                        <input type="text" class="form-control" id="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="password" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <small class="text-muted">Usuarios de prueba: admin/password | operador/password</small>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="text-center mb-4">
+                <h3><i class="fas fa-truck-moving me-2"></i>Trailers</h3>
+                <small class="text-light">Usuario: <span id="currentUserDisplay"></span></small>
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="trailers">
+                        <i class="fas fa-truck me-2"></i>Gestión de Trailers
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-section="reports">
+                        <i class="fas fa-chart-bar me-2"></i>Reportes
+                    </a>
+                </li>
+                <li class="nav-item mt-4">
+                    <a class="nav-link" href="#" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Dashboard Section -->
+            <div id="dashboardSection" class="content-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Dashboard</h2>
+                    <div class="text-muted" id="currentDateTime"></div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card stats-card">
+                            <i class="fas fa-truck"></i>
+                            <h3 id="totalTrailers">0</h3>
+                            <p>Total Trailers</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stats-card">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <h3 id="entradasHoy">0</h3>
+                            <p>Entradas Hoy</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stats-card">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <h3 id="salidasHoy">0</h3>
+                            <p>Salidas Hoy</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stats-card">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3 id="retenidos">0</h3>
+                            <p>Retenidos</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Actividad Reciente</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Placa</th>
+                                                <th>Marca</th>
+                                                <th>Estado</th>
+                                                <th>Hora</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recentActivity">
+                                            <!-- Los datos se cargarán dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Trailers por Estado</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="statusChart" width="100%" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trailers Management Section -->
+            <div id="trailersSection" class="content-section" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Gestión de Trailers</h2>
+                    <button class="btn btn-primary" id="addTrailerBtn">
+                        <i class="fas fa-plus me-2"></i>Agregar Trailer
+                    </button>
+                </div>
+                
+                <!-- Formulario para agregar/editar trailers -->
+                <div class="form-section" id="trailerForm" style="display: none;">
+                    <h4 id="formTitle">Agregar Nuevo Trailer</h4>
+                    <form id="trailerDataForm">
+                        <input type="hidden" id="trailerId">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="marca" class="form-label">Marca</label>
+                                    <select class="form-select" id="marca" required>
+                                        <option value="">Seleccione una marca</option>
+                                        <option value="Freightlainer">Freightlainer</option>
+                                        <option value="Kenworth">Kenworth</option>
+                                        <option value="International">International</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="placa" class="form-label">Placa</label>
+                                    <input type="text" class="form-control" id="placa" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="ejes" class="form-label">Número de Ejes</label>
+                                    <select class="form-select" id="ejes" required>
+                                        <option value="">Seleccione número de ejes</option>
+                                        <option value="2">2 ejes</option>
+                                        <option value="6">6 ejes</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="peso" class="form-label">Peso (kg)</label>
+                                    <input type="number" class="form-control" id="peso" step="0.01" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="dimensiones" class="form-label">Dimensiones (Largo x Ancho)</label>
+                                    <input type="text" class="form-control" id="dimensiones" placeholder="Ej: 12.5x2.4" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="destino" class="form-label">Destino</label>
+                                    <input type="text" class="form-control" id="destino" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="origen" class="form-label">Origen</label>
+                                    <input type="text" class="form-control" id="origen" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="historial" class="form-label">Historial Legal</label>
+                                    <select class="form-select" id="historial" required>
+                                        <option value="">Seleccione estado</option>
+                                        <option value="retenido">Retenido</option>
+                                        <option value="liberado">Liberado</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="seguro" class="form-label">Seguro</label>
+                                    <select class="form-select" id="seguro" required>
+                                        <option value="">Seleccione seguro</option>
+                                        <option value="Qualytas">Qualytas</option>
+                                        <option value="GNPG">GNPG</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="caja" class="form-label">Caja de Cambios</label>
+                                    <select class="form-select" id="caja" required>
+                                        <option value="">Seleccione tipo</option>
+                                        <option value="automatico">Automático</option>
+                                        <option value="standard">Standard</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="tipoTrailer" class="form-label">Tipo de Trailer</label>
+                                    <select class="form-select" id="tipoTrailer" required>
+                                        <option value="">Seleccione tipo</option>
+                                        <option value="Full">Full</option>
+                                        <option value="Sencillo">Sencillo</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="estadoCarga" class="form-label">Estado de Carga</label>
+                                    <select class="form-select" id="estadoCarga" required>
+                                        <option value="">Seleccione estado</option>
+                                        <option value="Cargado">Cargado</option>
+                                        <option value="Vacio">Vacío</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="licencia" class="form-label">Tipo de Licencia</label>
+                                    <input type="text" class="form-control" id="licencia" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="operador" class="form-label">Operador</label>
+                                    <input type="text" class="form-control" id="operador" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-secondary me-2" id="cancelFormBtn">Cancelar</button>
+                            <button type="submit" class="btn btn-primary" id="saveTrailerBtn">Guardar</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Tabla de trailers -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Lista de Trailers</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="trailersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Placa</th>
+                                        <th>Marca</th>
+                                        <th>Ejes</th>
+                                        <th>Destino</th>
+                                        <th>Estado</th>
+                                        <th>Hora Entrada</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trailersList">
+                                    <!-- Los datos se cargarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reportsSection" class="content-section" style="display: none;">
+                <h2 class="mb-4">Reportes</h2>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Filtrar Reportes</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="reportFilterForm">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="fechaInicio" class="form-label">Fecha Inicio</label>
+                                                <input type="date" class="form-control" id="fechaInicio">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="fechaFin" class="form-label">Fecha Fin</label>
+                                                <input type="date" class="form-control" id="fechaFin">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tipoReporte" class="form-label">Tipo de Reporte</label>
+                                        <select class="form-select" id="tipoReporte">
+                                            <option value="entradas">Entradas</option>
+                                            <option value="salidas">Salidas</option>
+                                            <option value="retenidos">Retenidos</option>
+                                            <option value="todos">Todos los movimientos</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Generar Reporte</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Estadísticas</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="reportChart" width="100%" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Resultados del Reporte</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="reportTable">
+                                <thead>
+                                    <tr>
+                                        <th>Placa</th>
+                                        <th>Marca</th>
+                                        <th>Destino/Origen</th>
+                                        <th>Estado</th>
+                                        <th>Fecha/Hora</th>
+                                        <th>Operador</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportResults">
+                                    <!-- Los datos se cargarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Datos iniciales; se cargan desde la API despues del login
+        let trailers = [];
+
+        // Variables globales
+        let currentUser = null;
+        let editingTrailerId = null;
+
+        // Inicialización cuando se carga la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Actualizar fecha y hora actual
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Configurar event listeners
+            setupEventListeners();
+        });
+
+        // Configurar todos los event listeners
+        function setupEventListeners() {
+            // Login
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            
+            // Navegación
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                if (link.getAttribute('data-section')) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const section = this.getAttribute('data-section');
+                        showSection(section);
+                        
+                        // Actualizar clase activa
+                        document.querySelectorAll('.sidebar .nav-link').forEach(item => {
+                            item.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                    });
+                }
+            });
+            
+            // Gestión de trailers
+            document.getElementById('addTrailerBtn').addEventListener('click', showTrailerForm);
+            document.getElementById('cancelFormBtn').addEventListener('click', hideTrailerForm);
+            document.getElementById('trailerDataForm').addEventListener('submit', saveTrailer);
+            
+            // Reportes
+            document.getElementById('reportFilterForm').addEventListener('submit', generateReport);
+        }
+
+        // Manejar login
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Credenciales válidas
+            const validUsers = [
+                { username: 'admin', password: 'admin123' },
+                { username: 'operador', password: 'operador456' }
+            ];
+            
+            const isValidUser = validUsers.some(user => 
+                user.username === username && user.password === password
+            );
+            
+            if (isValidUser) {
+                currentUser = username;
+                document.getElementById('currentUserDisplay').textContent = username;
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                
+                // Cargar datos iniciales
+                loadDashboardData();
+                loadTrailersTable();
+                
+                // Mostrar dashboard por defecto
+                showSection('dashboard');
+            } else {
+                alert('Usuario o contraseña incorrectos');
+            }
+        }
+
+        // Manejar logout
+        function handleLogout() {
+            currentUser = null;
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('loginForm').reset();
+        }
+
+        // Mostrar sección específica
+        function showSection(sectionName) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Mostrar la sección seleccionada
+            document.getElementById(sectionName + 'Section').style.display = 'block';
+            
+            // Si es dashboard, actualizar datos
+            if (sectionName === 'dashboard') {
+                loadDashboardData();
+            }
+        }
+
+        // Actualizar fecha y hora
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('currentDateTime').textContent = 
+                now.toLocaleDateString('es-ES', options);
+        }
+
+        // Cargar datos del dashboard
+        function loadDashboardData() {
+            // Actualizar estadísticas
+            document.getElementById('totalTrailers').textContent = trailers.length;
+            document.getElementById('entradasHoy').textContent = getEntradasHoy();
+            document.getElementById('salidasHoy').textContent = getSalidasHoy();
+            document.getElementById('retenidos').textContent = getRetenidos();
+            
+            // Cargar actividad reciente
+            loadRecentActivity();
+            
+            // Generar gráfico de estado
+            generateStatusChart();
+        }
+
+        // Obtener número de entradas hoy
+        function getEntradasHoy() {
+            const today = new Date().toISOString().split('T')[0];
+            return trailers.filter(t => t.horaEntrada && t.horaEntrada.startsWith(today)).length;
+        }
+
+        // Obtener número de salidas hoy
+        function getSalidasHoy() {
+            const today = new Date().toISOString().split('T')[0];
+            return trailers.filter(t => t.horaSalida && t.horaSalida.startsWith(today)).length;
+        }
+
+        // Obtener número de trailers retenidos
+        function getRetenidos() {
+            return trailers.filter(t => t.historial === 'retenido').length;
+        }
+
+        // Cargar actividad reciente
+        function loadRecentActivity() {
+            const tbody = document.getElementById('recentActivity');
+            tbody.innerHTML = '';
+            
+            // Ordenar trailers por hora de entrada (más recientes primero)
+            const sortedTrailers = [...trailers].sort((a, b) => 
+                new Date(b.horaEntrada) - new Date(a.horaEntrada)
+            ).slice(0, 5); // Solo mostrar los 5 más recientes
+            
+            sortedTrailers.forEach(trailer => {
+                const row = document.createElement('tr');
+                
+                // Determinar icono según estado
+                let estadoIcon = '';
+                let estadoClass = '';
+                if (trailer.historial === 'retenido') {
+                    estadoIcon = '<i class="fas fa-exclamation-triangle text-warning"></i>';
+                    estadoClass = 'text-warning';
+                } else if (trailer.estado === 'En patio') {
+                    estadoIcon = '<i class="fas fa-parking text-success"></i>';
+                    estadoClass = 'text-success';
+                } else {
+                    estadoIcon = '<i class="fas fa-truck text-primary"></i>';
+                    estadoClass = 'text-primary';
+                }
+                
+                row.innerHTML = `
+                    <td>${trailer.placa}</td>
+                    <td>${trailer.marca}</td>
+                    <td class="${estadoClass}">${estadoIcon} ${trailer.estado}</td>
+                    <td>${formatDateTime(trailer.horaEntrada)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Generar gráfico de estado
+        function generateStatusChart() {
+            const ctx = document.getElementById('statusChart');
+            if (!ctx) return;
+            
+            // Destruir gráfico anterior si existe
+            if (window.statusChartInstance) {
+                window.statusChartInstance.destroy();
+            }
+            
+            const ctx2d = ctx.getContext('2d');
+            
+            // Contar trailers por estado
+            const estados = {
+                'En patio': trailers.filter(t => t.estado === 'En patio').length,
+                'Retenido': trailers.filter(t => t.historial === 'retenido').length,
+                'En ruta': trailers.filter(t => t.estado === 'En ruta').length
+            };
+            
+            window.statusChartInstance = new Chart(ctx2d, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(estados),
+                    datasets: [{
+                        data: Object.values(estados),
+                        backgroundColor: [
+                            '#2ecc71',
+                            '#e74c3c',
+                            '#3498db'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Mostrar formulario de trailer
+        function showTrailerForm() {
+            document.getElementById('trailerForm').style.display = 'block';
+            document.getElementById('formTitle').textContent = 'Agregar Nuevo Trailer';
+            document.getElementById('trailerDataForm').reset();
+            editingTrailerId = null;
+        }
+
+        // Ocultar formulario de trailer
+        function hideTrailerForm() {
+            document.getElementById('trailerForm').style.display = 'none';
+            editingTrailerId = null;
+        }
+
+        // Cargar tabla de trailers
+        function loadTrailersTable() {
+            const tbody = document.getElementById('trailersList');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            
+            trailers.forEach(trailer => {
+                const row = document.createElement('tr');
+                
+                // Determinar clase de estado
+                let estadoClass = '';
+                let estadoIcon = '';
+                if (trailer.historial === 'retenido') {
+                    estadoClass = 'text-warning';
+                    estadoIcon = '<i class="fas fa-exclamation-triangle"></i> ';
+                } else if (trailer.estado === 'En patio') {
+                    estadoClass = 'text-success';
+                    estadoIcon = '<i class="fas fa-parking"></i> ';
+                } else {
+                    estadoClass = 'text-primary';
+                    estadoIcon = '<i class="fas fa-truck"></i> ';
+                }
+                
+                row.innerHTML = `
+                    <td>${trailer.placa}</td>
+                    <td>${trailer.marca}</td>
+                    <td>${trailer.ejes} ejes</td>
+                    <td>${trailer.destino}</td>
+                    <td class="${estadoClass}">${estadoIcon}${trailer.estado}</td>
+                    <td>${formatDateTime(trailer.horaEntrada)}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-sm btn-primary edit-trailer" data-id="${trailer.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger delete-trailer" data-id="${trailer.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        ${trailer.estado === 'En patio' ? 
+                            `<button class="btn btn-sm btn-warning salida-trailer" data-id="${trailer.id}">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>` : 
+                            `<button class="btn btn-sm btn-success entrada-trailer" data-id="${trailer.id}">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </button>`
+                        }
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Agregar event listeners a los botones
+            document.querySelectorAll('.edit-trailer').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    editTrailer(parseInt(this.getAttribute('data-id')));
+                });
+            });
+            
+            document.querySelectorAll('.delete-trailer').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    deleteTrailer(parseInt(this.getAttribute('data-id')));
+                });
+            });
+            
+            document.querySelectorAll('.salida-trailer').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    registrarSalida(parseInt(this.getAttribute('data-id')));
+                });
+            });
+            
+            document.querySelectorAll('.entrada-trailer').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    registrarEntrada(parseInt(this.getAttribute('data-id')));
+                });
+            });
+        }
+
+        // Editar trailer
+        function editTrailer(id) {
+            const trailer = trailers.find(t => t.id === id);
+            if (trailer) {
+                // Llenar el formulario con los datos del trailer
+                document.getElementById('trailerId').value = trailer.id;
+                document.getElementById('marca').value = trailer.marca;
+                document.getElementById('placa').value = trailer.placa;
+                document.getElementById('ejes').value = trailer.ejes;
+                document.getElementById('peso').value = trailer.peso;
+                document.getElementById('dimensiones').value = trailer.dimensiones;
+                document.getElementById('destino').value = trailer.destino;
+                document.getElementById('origen').value = trailer.origen;
+                document.getElementById('historial').value = trailer.historial;
+                document.getElementById('seguro').value = trailer.seguro;
+                document.getElementById('caja').value = trailer.caja;
+                document.getElementById('tipoTrailer').value = trailer.tipoTrailer;
+                document.getElementById('estadoCarga').value = trailer.estadoCarga;
+                document.getElementById('licencia').value = trailer.licencia;
+                document.getElementById('operador').value = trailer.operador;
+                
+                // Mostrar formulario
+                document.getElementById('trailerForm').style.display = 'block';
+                document.getElementById('formTitle').textContent = 'Editar Trailer';
+                editingTrailerId = id;
+            }
+        }
+
+        // Eliminar trailer
+        function deleteTrailer(id) {
+            if (confirm('¿Está seguro de que desea eliminar este trailer?')) {
+                trailers = trailers.filter(t => t.id !== id);
+                loadTrailersTable();
+                loadDashboardData();
+                alert('Trailer eliminado correctamente');
+            }
+        }
+
+        // Registrar salida de trailer
+        function registrarSalida(id) {
+            const trailer = trailers.find(t => t.id === id);
+            if (trailer) {
+                trailer.horaSalida = new Date().toISOString();
+                trailer.estado = 'En ruta';
+                loadTrailersTable();
+                loadDashboardData();
+                alert(`Salida registrada para el trailer ${trailer.placa}`);
+            }
+        }
+
+        // Registrar entrada de trailer
+        function registrarEntrada(id) {
+            const trailer = trailers.find(t => t.id === id);
+            if (trailer) {
+                trailer.horaEntrada = new Date().toISOString();
+                trailer.estado = 'En patio';
+                loadTrailersTable();
+                loadDashboardData();
+                alert(`Entrada registrada para el trailer ${trailer.placa}`);
+            }
+        }
+
+                // Guardar trailer (crear o actualizar)
+        function saveTrailer(e) {
+            e.preventDefault();
+            
+            const formData = {
+                marca: document.getElementById('marca').value,
+                placa: document.getElementById('placa').value,
+                ejes: parseInt(document.getElementById('ejes').value),
+                peso: parseFloat(document.getElementById('peso').value),
+                dimensiones: document.getElementById('dimensiones').value,
+                destino: document.getElementById('destino').value,
+                origen: document.getElementById('origen').value,
+                historial: document.getElementById('historial').value,
+                seguro: document.getElementById('seguro').value,
+                caja: document.getElementById('caja').value,
+                tipoTrailer: document.getElementById('tipoTrailer').value,
+                estadoCarga: document.getElementById('estadoCarga').value,
+                licencia: document.getElementById('licencia').value,
+                operador: document.getElementById('operador').value
+            };
+            
+            if (editingTrailerId) {
+                // Actualizar trailer existente
+                const index = trailers.findIndex(t => t.id === editingTrailerId);
+                if (index !== -1) {
+                    trailers[index] = { ...trailers[index], ...formData };
+                }
+            } else {
+                // Crear nuevo trailer
+                const newId = trailers.length > 0 ? Math.max(...trailers.map(t => t.id)) + 1 : 1;
+                const newTrailer = {
+                    id: newId,
+                    ...formData,
+                    horaEntrada: new Date().toISOString(),
+                    horaSalida: null,
+                    estado: 'En patio'
+                };
+                trailers.push(newTrailer);
+            }
+            
+            // Ocultar formulario y recargar datos
+            hideTrailerForm();
+            loadTrailersTable();
+            loadDashboardData();
+            
+            alert(`Trailer ${editingTrailerId ? 'actualizado' : 'agregado'} correctamente`);
+            editingTrailerId = null;
+        }
+
+        // Generar reporte
+        function generateReport(e) {
+            e.preventDefault();
+            
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const fechaFin = document.getElementById('fechaFin').value;
+            const tipoReporte = document.getElementById('tipoReporte').value;
+            
+            let filteredTrailers = [...trailers];
+            
+            // Filtrar por fecha si se especificó
+            if (fechaInicio) {
+                filteredTrailers = filteredTrailers.filter(t => t.horaEntrada >= fechaInicio);
+            }
+            
+            if (fechaFin) {
+                filteredTrailers = filteredTrailers.filter(t => t.horaEntrada <= fechaFin + 'T23:59:59');
+            }
+            
+            // Filtrar por tipo de reporte
+            switch(tipoReporte) {
+                case 'entradas':
+                    filteredTrailers = filteredTrailers.filter(t => t.estado === 'En patio');
+                    break;
+                case 'salidas':
+                    filteredTrailers = filteredTrailers.filter(t => t.estado === 'En ruta');
+                    break;
+                case 'retenidos':
+                    filteredTrailers = filteredTrailers.filter(t => t.historial === 'retenido');
+                    break;
+                // 'todos' no necesita filtro adicional
+            }
+            
+            // Mostrar resultados
+            const tbody = document.getElementById('reportResults');
+            tbody.innerHTML = '';
+            
+            if (filteredTrailers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No se encontraron resultados</td></tr>';
+            } else {
+                filteredTrailers.forEach(trailer => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${trailer.placa}</td>
+                        <td>${trailer.marca}</td>
+                        <td>${trailer.destino} / ${trailer.origen}</td>
+                        <td>${trailer.estado}</td>
+                        <td>${formatDateTime(trailer.horaEntrada)}</td>
+                        <td>${trailer.operador}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            
+            // Generar gráfico de reporte
+            generateReportChart(filteredTrailers, tipoReporte);
+        }
+
+        // Generar gráfico de reporte
+        function generateReportChart(data, tipoReporte) {
+            const ctx = document.getElementById('reportChart');
+            if (!ctx) return;
+            
+            // Destruir gráfico anterior si existe
+            if (window.reportChartInstance) {
+                window.reportChartInstance.destroy();
+            }
+            
+            const ctx2d = ctx.getContext('2d');
+            
+            let labels = [];
+            let datasetData = [];
+            
+            if (tipoReporte === 'todos') {
+                // Agrupar por estado
+                const estados = {};
+                data.forEach(trailer => {
+                    estados[trailer.estado] = (estados[trailer.estado] || 0) + 1;
+                });
+                
+                labels = Object.keys(estados);
+                datasetData = Object.values(estados);
+            } else {
+                // Agrupar por día
+                const dias = {};
+                data.forEach(trailer => {
+                    const dia = trailer.horaEntrada.split('T')[0];
+                    dias[dia] = (dias[dia] || 0) + 1;
+                });
+                
+                labels = Object.keys(dias).sort();
+                datasetData = Object.values(dias);
+            }
+            
+            window.reportChartInstance = new Chart(ctx2d, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `Número de ${tipoReporte}`,
+                        data: datasetData,
+                        backgroundColor: '#3498db',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Formatear fecha y hora
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return 'N/A';
+            
+            const date = new Date(dateTimeString);
+            return date.toLocaleString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+    <script src="./API.js"></script>
+</body>
+</html>
