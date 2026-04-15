@@ -1,0 +1,9 @@
+{
+  "name": "trailerrr-root",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Root package for Railway build detection",
+  "engines": {
+    "node": ">=18"
+  }
+}
